@@ -1,3 +1,4 @@
+
 version: "3.3"
 services:
   nginx:
@@ -9,6 +10,9 @@ services:
       - "80:80"
     depends_on:
       - "zuul-service"
+    deploy:
+      restart_policy:
+        condition: on-failure
   
   mysql:
     image: mysql:5.7
@@ -23,22 +27,31 @@ services:
   user-service:
     image: todo-user-service
     restart: always
+    deploy:
+      replicas: 2
+      update_config:
+        parallelism: 2
+        delay: 10s
+      restart_policy:
+        condition: on-failure
     ports:
       - "8082:8082"
     depends_on:
       - "config-service"
       - "mysql"
-      - "consul-service"
 
   todo-service:
     image: todo-todo-service
     restart: always
+    deploy:
+      replicas: 2
+      restart_policy:
+        condition: on-failure
     ports:
       - "8080:8080"
     depends_on:
       - "config-service"
       - "mysql"
-      - "consul-service"
   
   zuul-service:
     image: todo-zuul-service
@@ -47,19 +60,17 @@ services:
       - "8088:8088"
     depends_on:
       - "config-service"
-      - "consul-service"
+    deploy:
+      restart_policy:
+        condition: on-failure
 
   config-service:
     image: todo-config-service
     restart: on-failure
     ports:
       - "8888:8888"
-    depends_on:
-      - "consul-service"
+    deploy:
+      restart_policy:
+        condition: on-failure
 
-  consul-service:
-    image: consul
-    restart: always
-    ports:
-      - "8500:8500"
 
