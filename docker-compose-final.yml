@@ -10,6 +10,8 @@ services:
     deploy:
       restart_policy:
         condition: on-failure
+    networks:
+      - todo
   
   mysql:
     image: mysql:5.7
@@ -18,7 +20,9 @@ services:
     ports:
       - "3306:3306"
     restart: always
-    
+    networks:
+      - todo
+  
   user-service:
     image: xahhy/todo-user-service
     restart: always
@@ -34,6 +38,9 @@ services:
     depends_on:
       - "config-service"
       - "mysql"
+    networks:
+      - todo
+  
 
   todo-service:
     image: xahhy/todo-todo-service
@@ -47,6 +54,8 @@ services:
     depends_on:
       - "config-service"
       - "mysql"
+    networks:
+      - todo
   
   zuul-service:
     image: xahhy/todo-zuul-service
@@ -58,7 +67,9 @@ services:
     deploy:
       restart_policy:
         condition: on-failure
-
+    networks:
+      - todo
+  
   config-service:
     image: xahhy/todo-config-service
     restart: on-failure
@@ -67,5 +78,9 @@ services:
     deploy:
       restart_policy:
         condition: on-failure
+    networks:
+      - todo
+  
 
-
+networks:
+  todo:
